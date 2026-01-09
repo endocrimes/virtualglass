@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QApplication>
 #include <QScrollBar>
+#include <QPainter>
 
 #include "pickupeditorviewwidget.h"
 #include "piece.h"
@@ -62,7 +63,7 @@ bool PieceEditorWidget :: eventFilter(QObject* obj, QEvent* event)
 
 QImage PieceEditorWidget :: pieceImage()
 {
-	return pieceNiceViewWidget->grabFrameBuffer();
+	return pieceNiceViewWidget->grabFramebuffer();
 }
 
 void PieceEditorWidget :: reset3DCamera()
@@ -371,20 +372,20 @@ void PieceEditorWidget :: setupThreading()
 void PieceEditorWidget :: setupConnections()
 {
 	// pickup controls
-	connect(pickupCountSpin, SIGNAL(valueChanged(int)), this, SLOT(pickupCountSpinChanged(int)));
+	connect(pickupCountSpin, &QSpinBox::valueChanged, this, &PieceEditorWidget::pickupCountSpinChanged);
 
 	// custom piece controls
-	connect(addControlPointButton, SIGNAL(clicked()), this, SLOT(addControlPointButtonClicked()));
-	connect(deleteControlPointButton, SIGNAL(clicked()), this, SLOT(deleteControlPointButtonClicked()));
-	
+	connect(addControlPointButton, &QPushButton::clicked, this, &PieceEditorWidget::addControlPointButtonClicked);
+	connect(deleteControlPointButton, &QPushButton::clicked, this, &PieceEditorWidget::deleteControlPointButtonClicked);
+
 	// threaded rendering
-	connect(geometryThread, SIGNAL(finishedMesh(bool, unsigned int)), 
-		this, SLOT(geometryThreadFinishedMesh(bool, unsigned int)));
+	connect(geometryThread, &PieceGeometryThread::finishedMesh,
+		this, &PieceEditorWidget::geometryThreadFinishedMesh);
 
 	// subwidget communication
-	connect(pieceControlsTab, SIGNAL(currentChanged(int)), this, SLOT(pieceControlsTabChanged(int)));
+	connect(pieceControlsTab, &QTabWidget::currentChanged, this, &PieceEditorWidget::pieceControlsTabChanged);
 
-	connect(this->piece_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece_, &Piece::modified, this, &PieceEditorWidget::updateEverything);
 }
 
 void PieceEditorWidget :: twistEnded()
@@ -479,9 +480,9 @@ void PieceEditorWidget :: setPickupTemplateType(enum PickupTemplate::Type _type)
 
 void PieceEditorWidget :: setPiece(Piece* piece)
 {
-	disconnect(this->piece_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	disconnect(this->piece_, &Piece::modified, this, &PieceEditorWidget::updateEverything);
 	this->piece_ = piece;
-	connect(this->piece_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece_, &Piece::modified, this, &PieceEditorWidget::updateEverything);
 	pieceControlsTab->setCurrentIndex(0);
 	updateEverything();
 	pickupViewWidget->setPiece(this->piece_);

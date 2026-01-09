@@ -36,7 +36,7 @@ CaneCustomizeViewWidget::CaneCustomizeViewWidget(Cane* cane, QWidget* parent) : 
 	this->setFocusPolicy(Qt::StrongFocus);
 
 	// Listen to your cane
-	connect(this->cane, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->cane, &Cane::modified, this, &CaneCustomizeViewWidget::updateEverything);
 }
 
 void CaneCustomizeViewWidget :: resizeEvent(QResizeEvent* event)

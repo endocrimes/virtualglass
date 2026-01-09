@@ -1,4 +1,6 @@
 
+#include <QPainter>
+
 #include "glassmime.h"
 #include "cane.h"
 #include "glasscolor.h"
@@ -11,7 +13,7 @@ CaneLibraryWidget :: CaneLibraryWidget(Cane *_cane, MainWindow *_window)
 {
 	setFixedSize(100, 100);
 	updatePixmaps();
-	connect(this->cane, SIGNAL(modified()), this, SLOT(updatePixmaps()));
+	connect(this->cane, &Cane::modified, this, &CaneLibraryWidget::updatePixmaps);
 }
 
 void CaneLibraryWidget :: updatePixmaps()
@@ -29,9 +31,9 @@ void CaneLibraryWidget :: updatePixmaps()
 	setScene(camera, new CaneRenderData(cane));
 }
 
-const QPixmap* CaneLibraryWidget :: dragPixmap()
+QPixmap CaneLibraryWidget :: dragPixmap()
 {
-	return &(this->_dragPixmap);
+	return this->_dragPixmap;
 }
 
 bool CaneLibraryWidget :: isDraggable()

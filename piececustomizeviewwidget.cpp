@@ -24,7 +24,7 @@ PieceCustomizeViewWidget :: PieceCustomizeViewWidget(Piece* _piece, QWidget* _pa
 	this->setFocusPolicy(Qt::StrongFocus);
 
 	// Listen to your piece
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece, &Piece::modified, this, &PieceCustomizeViewWidget::updateEverything);
 
 }
 
@@ -41,9 +41,9 @@ QRect PieceCustomizeViewWidget :: usedRect()
 
 void PieceCustomizeViewWidget :: wheelEvent(QWheelEvent *e)
 {
-	if (e->delta() > 0)
+	if (e->angleDelta().y() > 0)
 		this->zoom *= 0.8;
-	else if (e->delta() < 0)	
+	else if (e->angleDelta().y() < 0)
 		this->zoom *= 1.2;
 	updateEverything();
 }
@@ -189,9 +189,9 @@ void PieceCustomizeViewWidget :: updateEverything()
 
 void PieceCustomizeViewWidget :: setPiece(Piece* _piece)
 {
-	disconnect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+	disconnect(this->piece, &Piece::modified, this, &PieceCustomizeViewWidget::updateEverything);
 	this->piece = _piece;
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece, &Piece::modified, this, &PieceCustomizeViewWidget::updateEverything);
 	resetZoom();
 	updateEverything();
 }

@@ -1,13 +1,16 @@
 #ifndef NICEVIEWWIDGET_H
 #define NICEVIEWWIDGET_H
 
+// GLEW must be included before any OpenGL headers
+#include "glew.h"
+#include <QOpenGLWidget>
 #include "primitives.h"
 #include "geometry.h"
 #include "peelrenderer.h"
 
-class QGLFramebufferObject;
+class QOpenGLFramebufferObject;
 
-class NiceViewWidget : public QGLWidget
+class NiceViewWidget : public QOpenGLWidget
 {
 	Q_OBJECT
 

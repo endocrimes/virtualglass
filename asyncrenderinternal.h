@@ -4,9 +4,8 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
-// glew.h must come before qgl.h
+// glew.h must come before OpenGL headers
 #include "glew.h"
-#include <qgl.h>
 #include <deque>
 #include <vector>
 #include "asyncrenderwidget.h"
@@ -15,8 +14,8 @@ using std::deque;
 using std::vector;
 using std::make_pair;
 
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
+#include <unordered_map>
+using std::unordered_map;
 
 class Geometry;
 class QImage;

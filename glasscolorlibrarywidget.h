@@ -13,7 +13,7 @@ class GlassColorLibraryWidget : public AsyncRenderWidget
 	public:
 		GlassColorLibraryWidget(GlassColor* _color, MainWindow* _window,
 			Cane* _circleCane=NULL, Cane* _squareCane=NULL);
-		const QPixmap *dragPixmap();
+		QPixmap dragPixmap();
 		bool isDraggable();
 		GlassMime::Type mimeType();
 

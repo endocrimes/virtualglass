@@ -36,7 +36,7 @@ Controller::Controller() : quitThreads(false), freshId(1)
 	for (unsigned int i = 0; i < 1; ++i) 
 	{
 		RenderThread *thread = new RenderThread(this);
-		connect(thread, SIGNAL(jobFinished(Job*)), this, SLOT(jobFinished(Job*)));
+		connect(thread, &RenderThread::jobFinished, this, &Controller::jobFinished);
 		thread->start();
 		threads.push_back(thread);
 	}

@@ -11,7 +11,7 @@ PieceLibraryWidget :: PieceLibraryWidget(Piece* _piece, MainWindow* _window)
 	eyePosition.y = 0.0;
 	eyePosition.z = 0.0;
 	updatePixmap();
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updatePixmap()));
+	connect(this->piece, &Piece::modified, this, &PieceLibraryWidget::updatePixmap);
 }
 
 void PieceLibraryWidget :: updateEyePosition(Vector3f _eyePosition)
@@ -31,7 +31,7 @@ void PieceLibraryWidget :: updatePixmap()
 	setScene(camera, new PieceRenderData(piece));
 }
 
-const QPixmap* PieceLibraryWidget :: dragPixmap()
+QPixmap PieceLibraryWidget :: dragPixmap()
 {
 	return pixmap();
 }

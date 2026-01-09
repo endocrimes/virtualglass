@@ -2,9 +2,10 @@
 #define ASYNCRENDERTHREAD_HPP
 
 #include "glew.h"
-#include <QGLWidget>
 #include <QThread>
 
+class QOffscreenSurface;
+class QOpenGLContext;
 class Camera;
 class Geometry;
 
@@ -31,7 +32,8 @@ public:
 	void simpleRender(Geometry const &geom);
 
 	Controller *controller;
-	QGLWidget *widget; //kinda silly way of getting a context to work with.
+	QOffscreenSurface *surface;
+	QOpenGLContext *context;
 
 signals:
 	void jobFinished(Job *job);

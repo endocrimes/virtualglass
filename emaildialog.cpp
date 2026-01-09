@@ -37,7 +37,7 @@ void EmailDialog :: setupLayout()
 
 	QPushButton* sendButton = new QPushButton("Send", this);
 	addressLayout->addWidget(sendButton);
-	connect(sendButton, SIGNAL(clicked()), this, SLOT(sendClicked()));
+	connect(sendButton, &QPushButton::clicked, this, &EmailDialog::sendClicked);
 
 	addressLayout->addStretch(1);
 	layout->addLayout(addressLayout);
@@ -51,7 +51,7 @@ void EmailDialog :: setupLayout()
 	int keySize = 50;
 	QToolButton* keyButton;
 	mapper = new QSignalMapper(this);
-	connect(mapper, SIGNAL(mapped(QString)), this, SLOT(keyClicked(QString)));
+	connect(mapper, &QSignalMapper::mappedString, this, &EmailDialog::keyClicked);
 
 	kRow0Layout = new QHBoxLayout(this);
 	layout->addLayout(kRow0Layout);
@@ -63,7 +63,7 @@ void EmailDialog :: setupLayout()
 		keyButton->setFixedSize(keySize, keySize);
 		kRow0Layout->addWidget(keyButton);
 		mapper->setMapping(keyButton, kRow0Keys[i]);
-		connect(keyButton, SIGNAL(clicked()), mapper, SLOT(map()));
+		connect(keyButton, &QToolButton::clicked, mapper, qOverload<>(&QSignalMapper::map));
 	} 
 	kRow0Layout->addStretch(1);
 
@@ -77,7 +77,7 @@ void EmailDialog :: setupLayout()
 		keyButton->setFixedSize(keySize, keySize);
 		kRow1Layout->addWidget(keyButton);
 		mapper->setMapping(keyButton, kRow1Keys[i]);
-		connect(keyButton, SIGNAL(clicked()), mapper, SLOT(map()));
+		connect(keyButton, &QToolButton::clicked, mapper, qOverload<>(&QSignalMapper::map));
 	} 
 	kRow1Layout->addStretch(1);
 
@@ -91,7 +91,7 @@ void EmailDialog :: setupLayout()
 		keyButton->setFixedSize(keySize, keySize);
 		kRow2Layout->addWidget(keyButton);
 		mapper->setMapping(keyButton, kRow2Keys[i]);
-		connect(keyButton, SIGNAL(clicked()), mapper, SLOT(map()));
+		connect(keyButton, &QToolButton::clicked, mapper, qOverload<>(&QSignalMapper::map));
 	} 
 	kRow2Layout->addStretch(1);
 
@@ -105,7 +105,7 @@ void EmailDialog :: setupLayout()
 		keyButton->setFixedSize(keySize, keySize);
 		kRow3Layout->addWidget(keyButton);
 		mapper->setMapping(keyButton, kRow3Keys[i]);
-		connect(keyButton, SIGNAL(clicked()), mapper, SLOT(map()));
+		connect(keyButton, &QToolButton::clicked, mapper, qOverload<>(&QSignalMapper::map));
 	} 
 	kRow3Layout->addStretch(1);
 
@@ -119,13 +119,13 @@ void EmailDialog :: setupLayout()
 		keyButton->setFixedSize(keySize, keySize);
 		kRow4Layout->addWidget(keyButton);
 		mapper->setMapping(keyButton, kRow4Keys[i]);
-		connect(keyButton, SIGNAL(clicked()), mapper, SLOT(map()));
+		connect(keyButton, &QToolButton::clicked, mapper, qOverload<>(&QSignalMapper::map));
 	} 
 	QToolButton* backspaceButton = new QToolButton(this);
 	backspaceButton->setFixedSize(2 * keySize, keySize);
 	backspaceButton->setText("Backspace");
 	kRow4Layout->addWidget(backspaceButton);	
-	connect(backspaceButton, SIGNAL(clicked()), this, SLOT(backspaceClicked()));
+	connect(backspaceButton, &QToolButton::clicked, this, &EmailDialog::backspaceClicked);
 	kRow4Layout->addStretch(1);
 }
 

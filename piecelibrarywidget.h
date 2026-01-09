@@ -15,7 +15,7 @@ class PieceLibraryWidget : public AsyncRenderWidget
 	public:
 		PieceLibraryWidget(Piece* _piece, MainWindow* _window);
 		Piece* piece;
-		const QPixmap* dragPixmap();
+		QPixmap dragPixmap();
 		bool isDraggable();
 		GlassMime::Type mimeType();
 		void updateEyePosition(Vector3f eyePosition);

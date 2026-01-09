@@ -6,10 +6,11 @@
 #include "peelrenderer.h"
 #include "glassopengl.h"
 #include "globalbackgroundcolor.h"
+#include <QOpenGLContext>
 
 #define glewGetContext() glewContext
 
-PeelRenderer::PeelRenderer(GLEWContext *_glewContext) : glewContext(_glewContext), expectedGLContext(QGLContext::currentContext()), bufferSize(make_vector(0U, 0U)), buffer(0), colorTex(0), depthTex(0), prevDepthTex(0), peelProgram(0), nopeelProgram(0) {
+PeelRenderer::PeelRenderer(GLEWContext *_glewContext) : glewContext(_glewContext), expectedGLContext(QOpenGLContext::currentContext()), bufferSize(make_vector(0U, 0U)), buffer(0), colorTex(0), depthTex(0), prevDepthTex(0), peelProgram(0), nopeelProgram(0) {
 	if (!GLEW_ARB_texture_rectangle
 	 || !GLEW_ARB_window_pos
 	 || !GLEW_ARB_occlusion_query
@@ -27,7 +28,7 @@ PeelRenderer::PeelRenderer(GLEWContext *_glewContext) : glewContext(_glewContext
 }
 
 PeelRenderer::~PeelRenderer() {
-	assert(QGLContext::currentContext() == expectedGLContext);
+	assert(QOpenGLContext::currentContext() == expectedGLContext);
 
 	//Clean up peeling state:
 	if (buffer) {
@@ -115,7 +116,7 @@ namespace {
 
 void PeelRenderer::render(Geometry const & geometry) 
 {
-	assert(QGLContext::currentContext() == expectedGLContext);
+	assert(QOpenGLContext::currentContext() == expectedGLContext);
 
 	GlassOpenGL::errors("(before depth peeling)");
 	//viewport is {x,y,w,h} in window.

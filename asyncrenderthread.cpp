@@ -9,7 +9,10 @@
 #include "constants.h"
 #include "glassopengl.h"
 
-#include <QGLFramebufferObject>
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
+#include <QOpenGLFramebufferObject>
+#include <QSurfaceFormat>
 
 #define glewGetContext() glewContext
 
@@ -17,23 +20,43 @@ using std::vector;
 
 using namespace AsyncRenderInternal;
 
-RenderThread::RenderThread(Controller *_controller) : controller(_controller), widget(NULL) 
+RenderThread::RenderThread(Controller *_controller) : controller(_controller), surface(NULL), context(NULL)
 {
-	widget = new QGLWidget(QGLFormat(QGL::AlphaChannel | QGL::DoubleBuffer | QGL::DepthBuffer));
-	widget->doneCurrent(); //make sure this widget's context isn't current!
+	// Create offscreen surface in main thread (required by Qt)
+	surface = new QOffscreenSurface();
+	surface->setFormat(QSurfaceFormat::defaultFormat());
+	surface->create();
+
+	// Note: context will be created in run() because Qt 6 requires
+	// QOpenGLContext to be created in the thread where it will be used
 }
 
-RenderThread::~RenderThread() 
+RenderThread::~RenderThread()
 {
-	delete widget;
-	widget = NULL;
+	// Note: context is deleted in run() after thread completes
+	// Surface can be deleted here since it was created in the main thread
+	delete surface;
+	surface = NULL;
 }
 
-void RenderThread::run() 
+void RenderThread::run()
 {
-	assert(widget->context());
-	assert(widget->context()->isValid());
-	widget->makeCurrent();
+	// Create context in worker thread (Qt 6 requirement)
+	context = new QOpenGLContext();
+	context->setFormat(surface->format());
+	if (!context->create()) {
+		std::cerr << "ERROR: Failed to create OpenGL context in render thread" << std::endl;
+		delete context;
+		context = NULL;
+		return;
+	}
+
+	if (!context->makeCurrent(surface)) {
+		std::cerr << "ERROR: Failed to make OpenGL context current in render thread" << std::endl;
+		delete context;
+		context = NULL;
+		return;
+	}
 
 	//-----------------------------------------------
 	//Init glew for this thread (needed for peeling):
@@ -77,9 +100,9 @@ void RenderThread::run()
 		controller->renderQueueLock.unlock();
 
 		//shouldn't change if it's a per-thread context, which I've been lead to suspect is true.
-		assert(QGLContext::currentContext() == widget->context()); 
+		assert(QOpenGLContext::currentContext() == context);
 
-		QGLFramebufferObject fb(job->camera.size.x, job->camera.size.y, QGLFramebufferObject::Depth);
+		QOpenGLFramebufferObject fb(job->camera.size.x, job->camera.size.y, QOpenGLFramebufferObject::Depth);
 		fb.bind();
 		glPushAttrib(GL_VIEWPORT_BIT);
 		glViewport(0, 0, job->camera.size.x, job->camera.size.y);
@@ -110,7 +133,11 @@ void RenderThread::run()
 	delete glewContext;
 	glewContext = NULL;
 
-	widget->doneCurrent();
+	context->doneCurrent();
+
+	// Delete context in the same thread where it was created
+	delete context;
+	context = NULL;
 }
 
 void RenderThread::setupCamera(Camera const &camera) 

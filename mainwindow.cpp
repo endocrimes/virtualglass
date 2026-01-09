@@ -95,13 +95,13 @@ void MainWindow :: enableAutosave(QString outputDir, unsigned int delaySecs)
 		autosaveDir = curDir.absolutePath() + QDir::separator() + outputDir;
 	autosaveTimer = new QTimer(this);
 	autosaveTimer->start(delaySecs * 1000);
-	connect(autosaveTimer, SIGNAL(timeout()), this, SLOT(autosave()));	
+	connect(autosaveTimer, &QTimer::timeout, this, &MainWindow::autosave);
 	autosaveDirtyBit = dirtyBit;
 }
 
 void MainWindow :: disableAutosave()
 {
-	disconnect(autosaveTimer, SIGNAL(timeout()), this, SLOT(autosave()));	
+	disconnect(autosaveTimer, &QTimer::timeout, this, &MainWindow::autosave);
 	delete autosaveTimer;
 }
 
@@ -427,7 +427,7 @@ void MainWindow::copyLibraryWidget(GlassLibraryWidget* lw)
 			GlassColor* newGlassColor = glassColorEditorWidget->glassColor()->copy();
 			glassColorLibraryLayout->insertWidget(index, new GlassColorLibraryWidget(newGlassColor, this));
 			GlobalUndoRedo::addedGlassColor(newGlassColor, index);
-			connect(newGlassColor, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			connect(newGlassColor, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 			glassColorEditorWidget->setGlassColor(newGlassColor);
 			updateLibraryHighlighting();
 			setDirtyBit(true);
@@ -439,7 +439,7 @@ void MainWindow::copyLibraryWidget(GlassLibraryWidget* lw)
 			Cane *newCane = caneEditorWidget->cane()->copy();
 			caneLibraryLayout->insertWidget(index, new CaneLibraryWidget(newCane, this));
 			GlobalUndoRedo::addedCane(newCane, index);
-			connect(newCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			connect(newCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 			caneEditorWidget->setCane(newCane);
 			updateLibraryHighlighting();
 			setDirtyBit(true);
@@ -451,7 +451,7 @@ void MainWindow::copyLibraryWidget(GlassLibraryWidget* lw)
 			Piece* newPiece = pieceEditorWidget->piece()->copy();
 			pieceLibraryLayout->insertWidget(index, new PieceLibraryWidget(newPiece, this));
 			GlobalUndoRedo::addedPiece(newPiece, index);
-			connect(newPiece, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			connect(newPiece, &Piece::modified, this, &MainWindow::glassObjectModified);
 			pieceEditorWidget->setPiece(newPiece);
 			updateLibraryHighlighting();
 			setDirtyBit(true);
@@ -530,7 +530,7 @@ void MainWindow::deleteLibraryWidget(GlassLibraryWidget* lw)
 			GlassColor* deleted = dynamic_cast<GlassColorLibraryWidget*>(
 				dynamic_cast<QWidgetItem*>(layout->itemAt(index))->widget())->glassColor;
 			GlobalUndoRedo::deletedGlassColor(deleted, index);
-			disconnect(deleted, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			disconnect(deleted, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 			break;
 		}
 		case CANE_VIEW_MODE:
@@ -538,7 +538,7 @@ void MainWindow::deleteLibraryWidget(GlassLibraryWidget* lw)
 			Cane* deleted = dynamic_cast<CaneLibraryWidget*>(
 				dynamic_cast<QWidgetItem*>(layout->itemAt(index))->widget())->cane;
 			GlobalUndoRedo::deletedCane(deleted, index);
-			disconnect(deleted, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			disconnect(deleted, &Cane::modified, this, &MainWindow::glassObjectModified);
 			break;
 		}
 		case PIECE_VIEW_MODE:
@@ -546,7 +546,7 @@ void MainWindow::deleteLibraryWidget(GlassLibraryWidget* lw)
 			Piece* deleted = dynamic_cast<PieceLibraryWidget*>(
 				dynamic_cast<QWidgetItem*>(layout->itemAt(index))->widget())->piece;
 			GlobalUndoRedo::deletedPiece(deleted, index);
-			disconnect(deleted, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+			disconnect(deleted, &Piece::modified, this, &MainWindow::glassObjectModified);
 			break;
 		}
 	}
@@ -587,60 +587,60 @@ void MainWindow::setEditorLibraryWidget(GlassLibraryWidget* w)
 void MainWindow :: setupConnections()
 {
 	// Toolbar stuff
-	connect(newFileButton, SIGNAL(clicked()), this, SLOT(newFileActionTriggered()));
+	connect(newFileButton, &QPushButton::clicked, this, &MainWindow::newFileActionTriggered);
 	if (!GlobalMuseumSetting::enabled())
 	{
-		connect(openFileButton, SIGNAL(clicked()), this, SLOT(openFileActionTriggered()));
-		connect(saveFileButton, SIGNAL(clicked()), this, SLOT(saveAllFileActionTriggered()));
+		connect(openFileButton, &QPushButton::clicked, this, &MainWindow::openFileActionTriggered);
+		connect(saveFileButton, &QPushButton::clicked, this, &MainWindow::saveAllFileActionTriggered);
 	}
-	connect(shareFileButton, SIGNAL(clicked()), this, SLOT(shareFileActionTriggered()));
-	connect(email, SIGNAL(success(QString)), this, SLOT(emailSuccess(QString)));
-	connect(email, SIGNAL(failure(QString)), this, SLOT(emailFailure(QString)));
+	connect(shareFileButton, &QPushButton::clicked, this, &MainWindow::shareFileActionTriggered);
+	connect(email, &Email::success, this, &MainWindow::emailSuccess);
+	connect(email, &Email::failure, this, &MainWindow::emailFailure);
 
 	// Library stuff
-	connect(newGlassColorButton, SIGNAL(clicked()), this, SLOT(newGlassColorButtonClicked()));
-	connect(newCaneButton, SIGNAL(clicked()), this, SLOT(newCaneButtonClicked()));
-	connect(newPieceButton, SIGNAL(clicked()), this, SLOT(newPieceButtonClicked()));
+	connect(newGlassColorButton, &QPushButton::clicked, this, &MainWindow::newGlassColorButtonClicked);
+	connect(newCaneButton, &QPushButton::clicked, this, &MainWindow::newCaneButtonClicked);
+	connect(newPieceButton, &QPushButton::clicked, this, &MainWindow::newPieceButtonClicked);
 
 	// File menu stuff
-	connect(newFileAction, SIGNAL(triggered()), this, SLOT(newFileActionTriggered()));
-	connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFileActionTriggered()));
-	connect(addFileAction, SIGNAL(triggered()), this, SLOT(addFileActionTriggered()));
-	connect(importSVGFileAction, SIGNAL(triggered()), this, SLOT(importSVGActionTriggered()));
-	connect(exportPLYFileAction, SIGNAL(triggered()), this, SLOT(exportPLYActionTriggered()));
-	connect(exportOBJFileAction, SIGNAL(triggered()), this, SLOT(exportOBJActionTriggered()));
-	connect(saveAllFileAction, SIGNAL(triggered()), this, SLOT(saveAllFileActionTriggered()));
-	connect(saveAllAsFileAction, SIGNAL(triggered()), this, SLOT(saveAllAsFileActionTriggered()));
-	connect(saveSelectedAsFileAction, SIGNAL(triggered()), this, SLOT(saveSelectedAsFileActionTriggered()));
-	connect(exitAction, SIGNAL(triggered()), this, SLOT(attemptToQuit()));
+	connect(newFileAction, &QAction::triggered, this, &MainWindow::newFileActionTriggered);
+	connect(openFileAction, &QAction::triggered, this, &MainWindow::openFileActionTriggered);
+	connect(addFileAction, &QAction::triggered, this, &MainWindow::addFileActionTriggered);
+	connect(importSVGFileAction, &QAction::triggered, this, &MainWindow::importSVGActionTriggered);
+	connect(exportPLYFileAction, &QAction::triggered, this, &MainWindow::exportPLYActionTriggered);
+	connect(exportOBJFileAction, &QAction::triggered, this, &MainWindow::exportOBJActionTriggered);
+	connect(saveAllFileAction, &QAction::triggered, this, &MainWindow::saveAllFileActionTriggered);
+	connect(saveAllAsFileAction, &QAction::triggered, this, &MainWindow::saveAllAsFileActionTriggered);
+	connect(saveSelectedAsFileAction, &QAction::triggered, this, &MainWindow::saveSelectedAsFileActionTriggered);
+	connect(exitAction, &QAction::triggered, this, &MainWindow::attemptToQuit);
 
 	// Edit menu stuff
-	connect(undoAction, SIGNAL(triggered()), this, SLOT(undoActionTriggered()));
-	connect(redoAction, SIGNAL(triggered()), this, SLOT(redoActionTriggered()));
-	
+	connect(undoAction, &QAction::triggered, this, &MainWindow::undoActionTriggered);
+	connect(redoAction, &QAction::triggered, this, &MainWindow::redoActionTriggered);
+
 	// View menu stuff
-	#ifndef Q_OS_MACX
-	connect(fullscreenViewAction, SIGNAL(triggered()), this, SLOT(fullscreenViewActionTriggered()));
-	connect(windowedViewAction, SIGNAL(triggered()), this, SLOT(windowedViewActionTriggered()));
+	#ifndef Q_OS_MACOS
+	connect(fullscreenViewAction, &QAction::triggered, this, &MainWindow::fullscreenViewActionTriggered);
+	connect(windowedViewAction, &QAction::triggered, this, &MainWindow::windowedViewActionTriggered);
 	#endif
 
 	// Examples menu stuff
-	connect(randomSimpleCaneAction, SIGNAL(triggered()), this, SLOT(randomSimpleCaneExampleActionTriggered()));
-	connect(randomSimplePieceAction, SIGNAL(triggered()), this, SLOT(randomSimplePieceExampleActionTriggered()));
+	connect(randomSimpleCaneAction, &QAction::triggered, this, &MainWindow::randomSimpleCaneExampleActionTriggered);
+	connect(randomSimplePieceAction, &QAction::triggered, this, &MainWindow::randomSimplePieceExampleActionTriggered);
 
-	connect(randomComplexCaneAction, SIGNAL(triggered()), this, SLOT(randomComplexCaneExampleActionTriggered()));
-	connect(randomComplexPieceAction, SIGNAL(triggered()), this, SLOT(randomComplexPieceExampleActionTriggered()));
+	connect(randomComplexCaneAction, &QAction::triggered, this, &MainWindow::randomComplexCaneExampleActionTriggered);
+	connect(randomComplexPieceAction, &QAction::triggered, this, &MainWindow::randomComplexPieceExampleActionTriggered);
 
 	// Performance menu stuff
-	connect(depthPeelAction, SIGNAL(triggered()), this, SLOT(depthPeelActionTriggered()));
+	connect(depthPeelAction, &QAction::triggered, this, &MainWindow::depthPeelActionTriggered);
 
 	// Status bar stuff
-	connect(caneEditorWidget, SIGNAL(showMessage(const QString&, unsigned int)), 
-		this, SLOT(showStatusMessage(const QString&, unsigned int)));
-	connect(pieceEditorWidget, SIGNAL(showMessage(const QString&, unsigned int)), 
-		this, SLOT(showStatusMessage(const QString&, unsigned int)));
-	connect(email, SIGNAL(showMessage(const QString&, unsigned int)), 
-		this, SLOT(showStatusMessage(const QString&, unsigned int)));
+	connect(caneEditorWidget, &CaneEditorWidget::showMessage,
+		this, &MainWindow::showStatusMessage);
+	connect(pieceEditorWidget, &PieceEditorWidget::showMessage,
+		this, &MainWindow::showStatusMessage);
+	connect(email, &Email::showMessage,
+		this, &MainWindow::showStatusMessage);
 }
 
 void MainWindow :: undoActionTriggered()
@@ -685,11 +685,11 @@ void MainWindow :: randomSimpleCaneExampleActionTriggered()
 
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColor, this));
 	GlobalUndoRedo::addedGlassColor(glassColor, glassColorLibraryLayout->count()-1);
-	connect(glassColor, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(glassColor, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(cane, this));
 	GlobalUndoRedo::addedCane(cane, caneLibraryLayout->count()-1);
-	connect(cane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(cane, &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	setViewMode(CANE_VIEW_MODE);
 	caneEditorWidget->setCane(cane);
@@ -707,13 +707,13 @@ void MainWindow :: randomComplexCaneExampleActionTriggered()
 
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColor, this));
 	GlobalUndoRedo::addedGlassColor(glassColor, glassColorLibraryLayout->count()-1);
-	connect(glassColor, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(glassColor, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 
 	if (complexCane->hasDependencyOn(circleCane))
 	{
 		caneLibraryLayout->addWidget(new CaneLibraryWidget(circleCane, this));
 		GlobalUndoRedo::addedCane(circleCane, caneLibraryLayout->count()-1);
-		connect(circleCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(circleCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	}
 	else 
 		deep_delete(circleCane);
@@ -721,13 +721,13 @@ void MainWindow :: randomComplexCaneExampleActionTriggered()
 	{
 		caneLibraryLayout->addWidget(new CaneLibraryWidget(squareCane, this));
 		GlobalUndoRedo::addedCane(squareCane, caneLibraryLayout->count()-1);
-		connect(squareCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(squareCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	}
 	else 
 		deep_delete(squareCane);
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(complexCane, this));
 	GlobalUndoRedo::addedCane(complexCane, caneLibraryLayout->count()-1);
-	connect(complexCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(complexCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	setViewMode(CANE_VIEW_MODE);
 	caneEditorWidget->setCane(complexCane);
@@ -744,15 +744,15 @@ void MainWindow :: randomSimplePieceExampleActionTriggered()
 
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColor, this));
 	GlobalUndoRedo::addedGlassColor(glassColor, glassColorLibraryLayout->count()-1);
-	connect(glassColor, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(glassColor, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(squareCane, this));
 	GlobalUndoRedo::addedCane(squareCane, caneLibraryLayout->count()-1);
-	connect(squareCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(squareCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	pieceLibraryLayout->addWidget(new PieceLibraryWidget(piece, this));
 	GlobalUndoRedo::addedPiece(piece, pieceLibraryLayout->count()-1);
-	connect(piece, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(piece, &Piece::modified, this, &MainWindow::glassObjectModified);
 
 	setViewMode(PIECE_VIEW_MODE);
 	pieceEditorWidget->setPiece(piece);
@@ -775,7 +775,7 @@ void MainWindow :: randomComplexPieceExampleActionTriggered()
 	{
 		glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColor1, this));
 		GlobalUndoRedo::addedGlassColor(glassColor1, glassColorLibraryLayout->count()-1);
-		connect(glassColor1, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(glassColor1, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 	}
 	else
 		delete glassColor1;
@@ -783,7 +783,7 @@ void MainWindow :: randomComplexPieceExampleActionTriggered()
 	{
 		glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColor2, this));
 		GlobalUndoRedo::addedGlassColor(glassColor2, glassColorLibraryLayout->count()-1);
-		connect(glassColor2, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(glassColor2, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 	}
 	else
 		delete glassColor2;
@@ -791,7 +791,7 @@ void MainWindow :: randomComplexPieceExampleActionTriggered()
 	{
 		caneLibraryLayout->addWidget(new CaneLibraryWidget(circleCane, this));
 		GlobalUndoRedo::addedCane(circleCane, caneLibraryLayout->count()-1);
-		connect(circleCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(circleCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	}
 	else
 		delete circleCane;
@@ -799,21 +799,21 @@ void MainWindow :: randomComplexPieceExampleActionTriggered()
 	{
 		caneLibraryLayout->addWidget(new CaneLibraryWidget(squareCane, this));
 		GlobalUndoRedo::addedCane(squareCane, caneLibraryLayout->count()-1);
-		connect(squareCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(squareCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	}
 	else
 		delete squareCane;
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(complexCane1, this));
 	GlobalUndoRedo::addedCane(complexCane1, caneLibraryLayout->count()-1);
-	connect(complexCane1, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(complexCane1, &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(complexCane2, this));
 	GlobalUndoRedo::addedCane(complexCane2, caneLibraryLayout->count()-1);
-	connect(complexCane2, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(complexCane2, &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	pieceLibraryLayout->addWidget(new PieceLibraryWidget(piece, this));
 	GlobalUndoRedo::addedPiece(piece, pieceLibraryLayout->count()-1);
-	connect(piece, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(piece, &Piece::modified, this, &MainWindow::glassObjectModified);
 
 	setViewMode(PIECE_VIEW_MODE);
 	pieceEditorWidget->setPiece(piece);
@@ -1000,21 +1000,21 @@ void MainWindow :: setupEditors()
 	glassColorEditorWidget = new ColorEditorWidget(editorStack);
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColorEditorWidget->glassColor(), this));
 	GlobalUndoRedo::addedGlassColor(glassColorEditorWidget->glassColor(), glassColorLibraryLayout->count()-1);
-	connect(glassColorEditorWidget->glassColor(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(glassColorEditorWidget->glassColor(), &GlassColor::modified, this, &MainWindow::glassObjectModified);
 	glassColorEditorWidget->updateEverything();
 	editorStack->addWidget(glassColorEditorWidget);
 
 	caneEditorWidget = new CaneEditorWidget(editorStack);
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(caneEditorWidget->cane(), this));
 	GlobalUndoRedo::addedCane(caneEditorWidget->cane(), caneLibraryLayout->count()-1);
-	connect(caneEditorWidget->cane(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(caneEditorWidget->cane(), &Cane::modified, this, &MainWindow::glassObjectModified);
 	caneEditorWidget->updateEverything();
 	editorStack->addWidget(caneEditorWidget);
 
 	pieceEditorWidget = new PieceEditorWidget(editorStack);
 	pieceLibraryLayout->addWidget(new PieceLibraryWidget(pieceEditorWidget->piece(), this));
 	GlobalUndoRedo::addedPiece(pieceEditorWidget->piece(), pieceLibraryLayout->count()-1);
-	connect(pieceEditorWidget->piece(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(pieceEditorWidget->piece(), &Piece::modified, this, &MainWindow::glassObjectModified);
 	pieceEditorWidget->updateEverything();
 	editorStack->addWidget(pieceEditorWidget);
 }
@@ -1024,7 +1024,7 @@ void MainWindow :: newGlassColorButtonClicked()
 	GlassColor* newGlassColor = new GlassColor();
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(newGlassColor, this));
 	GlobalUndoRedo::addedGlassColor(newGlassColor, glassColorLibraryLayout->count()-1);
-	connect(newGlassColor, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(newGlassColor, &GlassColor::modified, this, &MainWindow::glassObjectModified);
 	glassColorEditorWidget->setGlassColor(newGlassColor);
 
 	setViewMode(GLASSCOLOR_VIEW_MODE);
@@ -1038,7 +1038,7 @@ void MainWindow :: newCaneButtonClicked()
 	Cane* newCane = new Cane(CaneTemplate::HORIZONTAL_LINE_CIRCLE);
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(newCane, this));
 	GlobalUndoRedo::addedCane(newCane, caneLibraryLayout->count()-1);
-	connect(newCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(newCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	caneEditorWidget->setCane(newCane);
 
 	setViewMode(CANE_VIEW_MODE);
@@ -1052,7 +1052,7 @@ void MainWindow :: newPieceButtonClicked()
 	Piece* newPiece = new Piece(PieceTemplate::TUMBLER, PickupTemplate::VERTICAL);
 	pieceLibraryLayout->addWidget(new PieceLibraryWidget(newPiece, this));
 	GlobalUndoRedo::addedPiece(newPiece, pieceLibraryLayout->count()-1);
-	connect(newPiece, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(newPiece, &Piece::modified, this, &MainWindow::glassObjectModified);
 	pieceEditorWidget->setPiece(newPiece);
 
 	setViewMode(PIECE_VIEW_MODE);
@@ -1406,7 +1406,7 @@ void MainWindow::setupMenus()
 	// On OS X is mysteriously populated with an "Enter Fullscreen" option.
 	viewMenu = menuBar()->addMenu("View");	
 
-	#ifndef Q_OS_MACX
+	#ifndef Q_OS_MACOS
 	fullscreenViewAction = new QAction("Full Screen", this);
 	fullscreenViewAction->setCheckable(true);
 	fullscreenViewAction->setChecked(false);
@@ -1453,7 +1453,7 @@ void MainWindow::setupMenus()
 void MainWindow :: fullscreenViewActionTriggered()
 {
         showFullScreen();
-	#ifndef Q_OS_MACX
+	#ifndef Q_OS_MACOS
         fullscreenViewAction->setChecked(true);
         windowedViewAction->setChecked(false);
 	#endif
@@ -1462,7 +1462,7 @@ void MainWindow :: fullscreenViewActionTriggered()
 void MainWindow :: windowedViewActionTriggered()
 {
         showMaximized();
-	#ifndef Q_OS_MACX
+	#ifndef Q_OS_MACOS
         fullscreenViewAction->setChecked(false);
         windowedViewAction->setChecked(true);
 	#endif
@@ -1553,7 +1553,7 @@ void MainWindow::importSVGActionTriggered()
 
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(newCane, this));
 	GlobalUndoRedo::addedCane(newCane, caneLibraryLayout->count()-1);
-	connect(newCane, SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(newCane, &Cane::modified, this, &MainWindow::glassObjectModified);
 	setViewMode(CANE_VIEW_MODE);
 	caneEditorWidget->setCane(newCane);
 }
@@ -1691,15 +1691,15 @@ void MainWindow::resetLibrary()
 	// 3. add the three new guys from the editors into the library 
 	glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(glassColorEditorWidget->glassColor(), this));
 	GlobalUndoRedo::addedGlassColor(glassColorEditorWidget->glassColor(), glassColorLibraryLayout->count()-1);
-	connect(glassColorEditorWidget->glassColor(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(glassColorEditorWidget->glassColor(), &GlassColor::modified, this, &MainWindow::glassObjectModified);
 
 	caneLibraryLayout->addWidget(new CaneLibraryWidget(caneEditorWidget->cane(), this));
 	GlobalUndoRedo::addedCane(caneEditorWidget->cane(), caneLibraryLayout->count()-1);
-	connect(caneEditorWidget->cane(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(caneEditorWidget->cane(), &Cane::modified, this, &MainWindow::glassObjectModified);
 
 	pieceLibraryLayout->addWidget(new PieceLibraryWidget(pieceEditorWidget->piece(), this)); 
 	GlobalUndoRedo::addedPiece(pieceEditorWidget->piece(), pieceLibraryLayout->count()-1);
-	connect(pieceEditorWidget->piece(), SIGNAL(modified()), this, SLOT(glassObjectModified()));
+	connect(pieceEditorWidget->piece(), &Piece::modified, this, &MainWindow::glassObjectModified);
 
 	GlobalUndoRedo::noPriorUndo();
 
@@ -1792,19 +1792,19 @@ void MainWindow::openFile(QString filename, bool add)
 		}
 		glassColorLibraryLayout->addWidget(new GlassColorLibraryWidget(colors[i], this, circleCane, squareCane));
 		GlobalUndoRedo::addedGlassColor(colors[i], glassColorLibraryLayout->count()-1);
-		connect(colors[i], SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(colors[i], &GlassColor::modified, this, &MainWindow::glassObjectModified);
 	}
 	for (unsigned int i = 0; i < canes.size(); ++i)
 	{
 		caneLibraryLayout->addWidget(new CaneLibraryWidget(canes[i], this));
 		GlobalUndoRedo::addedCane(canes[i], caneLibraryLayout->count()-1);
-		connect(canes[i], SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(canes[i], &Cane::modified, this, &MainWindow::glassObjectModified);
 	}
 	for (unsigned int i = 0; i < pieces.size(); ++i)
 	{
 		pieceLibraryLayout->addWidget(new PieceLibraryWidget(pieces[i], this));
 		GlobalUndoRedo::addedPiece(pieces[i], pieceLibraryLayout->count()-1);
-		connect(pieces[i], SIGNAL(modified()), this, SLOT(glassObjectModified()));
+		connect(pieces[i], &Piece::modified, this, &MainWindow::glassObjectModified);
 	}
 
 	GlobalUndoRedo::noPriorUndo();

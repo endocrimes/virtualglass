@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QApplication>
 #include <QScrollBar>
+#include <QPainter>
 
 #include "cane.h"
 #include "geometry.h"
@@ -59,7 +60,7 @@ bool CaneEditorWidget :: eventFilter(QObject* obj, QEvent* event)
 
 QImage CaneEditorWidget :: caneImage()
 {
-	return niceViewWidget->grabFrameBuffer();
+	return niceViewWidget->grabFramebuffer();
 }
 
 void CaneEditorWidget :: reset3DCamera()
@@ -411,24 +412,24 @@ void CaneEditorWidget :: mouseReleaseEvent(QMouseEvent* event)
 void CaneEditorWidget :: setupConnections()
 {
 	// editor controls
-	connect(circleCasingPushButton, SIGNAL(clicked()), this, SLOT(circleCasingButtonClicked()));
-	connect(squareCasingPushButton, SIGNAL(clicked()), this, SLOT(squareCasingButtonClicked()));
-	connect(addCasingButton, SIGNAL(clicked()), this, SLOT(addCasingButtonClicked()));
-	connect(deleteCasingButton, SIGNAL(clicked()), this, SLOT(deleteCasingButtonClicked()));
-	connect(copySelectedButton, SIGNAL(clicked()), this, SLOT(copySelectedButtonClicked()));
-	connect(deleteSelectedButton, SIGNAL(clicked()), this, SLOT(deleteSelectedButtonClicked()));
-	connect(addCircleButton, SIGNAL(clicked()), this, SLOT(addCircleButtonClicked()));
-	connect(addSquareButton, SIGNAL(clicked()), this, SLOT(addSquareButtonClicked()));
-	connect(twistWidget, SIGNAL(valueChangeEnded()), this, SLOT(twistEnded()));
-	connect(countSpin, SIGNAL(valueChanged(int)), this, SLOT(countSpinChanged(int)));
-	connect(controlsTab, SIGNAL(currentChanged(int)), this, SLOT(controlsTabChanged(int)));
+	connect(circleCasingPushButton, &QPushButton::clicked, this, &CaneEditorWidget::circleCasingButtonClicked);
+	connect(squareCasingPushButton, &QPushButton::clicked, this, &CaneEditorWidget::squareCasingButtonClicked);
+	connect(addCasingButton, &QPushButton::clicked, this, &CaneEditorWidget::addCasingButtonClicked);
+	connect(deleteCasingButton, &QPushButton::clicked, this, &CaneEditorWidget::deleteCasingButtonClicked);
+	connect(copySelectedButton, &QPushButton::clicked, this, &CaneEditorWidget::copySelectedButtonClicked);
+	connect(deleteSelectedButton, &QPushButton::clicked, this, &CaneEditorWidget::deleteSelectedButtonClicked);
+	connect(addCircleButton, &QPushButton::clicked, this, &CaneEditorWidget::addCircleButtonClicked);
+	connect(addSquareButton, &QPushButton::clicked, this, &CaneEditorWidget::addSquareButtonClicked);
+	connect(twistWidget, &TwistWidget::valueChangeEnded, this, &CaneEditorWidget::twistEnded);
+	connect(countSpin, &QSpinBox::valueChanged, this, &CaneEditorWidget::countSpinChanged);
+	connect(controlsTab, &QTabWidget::currentChanged, this, &CaneEditorWidget::controlsTabChanged);
 
-	// render thread	
-	connect(geometryThread, SIGNAL(finishedMesh(bool, unsigned int)), 
-		this, SLOT(geometryThreadFinishedMesh(bool, unsigned int)));
+	// render thread
+	connect(geometryThread, &CaneGeometryThread::finishedMesh,
+		this, &CaneEditorWidget::geometryThreadFinishedMesh);
 
 	// modified() events
-	connect(this->cane_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->cane_, &Cane::modified, this, &CaneEditorWidget::updateEverything);
 }
 	
 void CaneEditorWidget :: twistEnded()
@@ -473,9 +474,9 @@ void CaneEditorWidget :: seedTemplates()
 
 void CaneEditorWidget :: setCane(Cane* cane_)
 {
-	disconnect(this->cane_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	disconnect(this->cane_, &Cane::modified, this, &CaneEditorWidget::updateEverything);
 	this->cane_ = cane_;
-	connect(this->cane_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->cane_, &Cane::modified, this, &CaneEditorWidget::updateEverything);
 	controlsTab->setCurrentIndex(0);
 	updateEverything();
 	twistWidget->setCane(cane_);

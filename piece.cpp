@@ -33,13 +33,13 @@ unsigned int Piece :: casingDependencyOccurrances(GlassColor* glassColor)
 void Piece :: addCasingDependency(GlassColor* glassColor)
 {
 	if (casingDependencyOccurrances(glassColor) == 1)
-		connect(glassColor, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		connect(glassColor, &GlassColor::modified, this, &Piece::dependencyModified);
 }
 
 void Piece :: removeCasingDependency(GlassColor* glassColor)
 {
 	if (casingDependencyOccurrances(glassColor) == 0)
-		disconnect(glassColor, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		disconnect(glassColor, &GlassColor::modified, this, &Piece::dependencyModified);
 }
 
 unsigned int Piece :: subcaneDependencyOccurrances(Cane* cane)
@@ -53,13 +53,13 @@ unsigned int Piece :: subcaneDependencyOccurrances(Cane* cane)
 void Piece :: addSubcaneDependency(Cane* cane)
 {
 	if (subcaneDependencyOccurrances(cane) == 1)
-		connect(cane, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		connect(cane, &Cane::modified, this, &Piece::dependencyModified);
 }
 
 void Piece :: removeSubcaneDependency(Cane* cane)
 {
 	if (subcaneDependencyOccurrances(cane) == 0)
-		disconnect(cane, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		disconnect(cane, &Cane::modified, this, &Piece::dependencyModified);
 }
 
 void Piece::setSpline(Spline s)

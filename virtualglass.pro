@@ -1,11 +1,13 @@
 # Project file for VirtualGlass
 
 TEMPLATE = app
+TARGET = VirtualGlass
 DEPENDPATH += .
 INCLUDEPATH += . glew/ jsoncpp/include/
-QT += opengl network
+QT += opengl openglwidgets network
 RESOURCES = virtualglass.qrc
 DEFINES += GLEW_MX
+CONFIG += sdk_no_version_check c++17
 
 # The expat library usually found in standard places on Mac and Linux.
 # Windows folks can get static library (.a) and includes (.h) in a tarball at
@@ -21,14 +23,11 @@ unix:!macx {
 	QMAKE_CC = g++
 	QMAKE_CXX = g++
 
-	# Compile flags
-	QMAKE_CXXFLAGS += -std=gnu++0x
-
 	# Unclear what these are linking statically
 	QMAKE_LFLAGS_RELEASE += -static-libgcc
 
 	# All those compile flags
-        QMAKE_CXXFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter -Wno-deprecated
+	QMAKE_CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated
 	QMAKE_CXXFLAGS_RELEASE += -static-libgcc
 	QMAKE_CXXFLAGS_DEBUG += -g
 }
@@ -56,7 +55,7 @@ win32 {
 	RC_FILE = virtualglass.rc
 }
 
-# Windows using MinGW 
+# Windows using MinGW
 win32:!*-msvc-* {
 	QMAKE_CC = g++
 	QMAKE_CXX = g++
@@ -64,8 +63,8 @@ win32:!*-msvc-* {
 	# Unclear what these are linking statically
 	QMAKE_LFLAGS_RELEASE += -static-libgcc
 
-	# All those compile flags  
-	QMAKE_CXXFLAGS += -Wall -Wextra -Werror -Wno-unused-parameter -Wno-deprecated -std=gnu++0x
+	# All those compile flags
+	QMAKE_CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated
 	QMAKE_CFLAGS_RELEASE += -static-libgcc
 	QMAKE_CXXFLAGS_DEBUG += -g
 }
@@ -84,7 +83,8 @@ win32:*-msvc* {
 	QMAKE_CXXFLAGS += $${MYFLAGS}
 }
 
-HEADERS += vgapp.h \ 
+HEADERS += vgapp.h \
+	randomutil.h \ 
 	glew/glew.h \
 	glew/glxew.h \
 	glew/wglew.h \

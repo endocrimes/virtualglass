@@ -49,13 +49,13 @@ TwistWidget :: TwistWidget(Cane* cane, Piece* piece, unsigned int range, QWidget
 	QLabel* rightLabel = new QLabel(buf, this);
 	layout->addWidget(rightLabel);	
 
-	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(sliderValueChanged(int)));	
-	connect(slider, SIGNAL(sliderReleased()), this, SLOT(sliderChangeEnded()));	
-	connect(spin, SIGNAL(valueChanged(double)), this, SLOT(spinValueChanged(double)));	
+	connect(slider, &QSlider::valueChanged, this, &TwistWidget::sliderValueChanged);
+	connect(slider, &QSlider::sliderReleased, this, &TwistWidget::sliderChangeEnded);
+	connect(spin, &QDoubleSpinBox::valueChanged, this, &TwistWidget::spinValueChanged);
 	if (this->cane != NULL)
-		connect(this->cane, SIGNAL(modified()), this, SLOT(updateEverything()));
+		connect(this->cane, &Cane::modified, this, &TwistWidget::updateEverything);
 	if (this->piece != NULL)
-		connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+		connect(this->piece, &Piece::modified, this, &TwistWidget::updateEverything);
 }
 
 bool TwistWidget :: eventFilter(QObject* obj, QEvent* event)
@@ -112,11 +112,11 @@ void TwistWidget :: sliderValueChanged(int v)
 void TwistWidget :: setCane(Cane* _cane)
 {
 	if (this->cane != NULL)
-		disconnect(this->cane, SIGNAL(modified()), this, SLOT(updateEverything()));
+		disconnect(this->cane, &Cane::modified, this, &TwistWidget::updateEverything);
 	if (this->piece != NULL)
-		disconnect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+		disconnect(this->piece, &Piece::modified, this, &TwistWidget::updateEverything);
 	this->cane = _cane;
-	connect(this->cane, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->cane, &Cane::modified, this, &TwistWidget::updateEverything);
 	this->piece = NULL;
 	updateEverything();
 }
@@ -124,12 +124,12 @@ void TwistWidget :: setCane(Cane* _cane)
 void TwistWidget :: setPiece(Piece* _piece)
 {
 	if (this->cane != NULL)
-		disconnect(this->cane, SIGNAL(modified()), this, SLOT(updateEverything()));
+		disconnect(this->cane, &Cane::modified, this, &TwistWidget::updateEverything);
 	if (this->piece != NULL)
-		disconnect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+		disconnect(this->piece, &Piece::modified, this, &TwistWidget::updateEverything);
 	this->cane = NULL;
 	this->piece = _piece;
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece, &Piece::modified, this, &TwistWidget::updateEverything);
 	updateEverything();
 }
 

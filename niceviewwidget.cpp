@@ -15,10 +15,11 @@
 #include "globalbackgroundcolor.h"
 #include "glassopengl.h"
 
-NiceViewWidget :: NiceViewWidget(enum CameraMode cameraMode, QWidget *parent) 
-	: QGLWidget(QGLFormat(QGL::AlphaChannel | QGL::DoubleBuffer | QGL::DepthBuffer | QGL::SampleBuffers), parent), 
+NiceViewWidget :: NiceViewWidget(enum CameraMode cameraMode, QWidget *parent)
+	: QOpenGLWidget(parent),
 		peelRenderer(NULL)
 {
+	// Set OpenGL format (using default format set in main.cpp via QSurfaceFormat::setDefaultFormat)
 	leftMouseDown = false;
 	mouseLocX = 0;
 	mouseLocY = 0;
@@ -209,8 +210,8 @@ bool NiceViewWidget :: event(QEvent* event)
 			QMouseEvent* e = dynamic_cast<QMouseEvent*>(event);
 
 			// Update instance variables for mouse location
-			mouseLocX = e->x();
-			mouseLocY = e->y();
+			mouseLocX = e->position().x();
+			mouseLocY = e->position().y();
 
 			if (e->button() == Qt::LeftButton)
 				leftMouseDown = true;
@@ -229,10 +230,10 @@ bool NiceViewWidget :: event(QEvent* event)
 
 			// Calculate how much mouse moved
 			oldMouseLocX = mouseLocX;
-			mouseLocX = e->x();
+			mouseLocX = e->position().x();
 			relX = (mouseLocX - oldMouseLocX) / static_cast<float>(this->width());
 			oldMouseLocY = mouseLocY;
-			mouseLocY = e->y();
+			mouseLocY = e->position().y();
 			relY = (mouseLocY - oldMouseLocY) / static_cast<float>(this->height());
 
 			if (leftMouseDown)
@@ -261,9 +262,9 @@ bool NiceViewWidget :: event(QEvent* event)
 			switch (cameraMode)
 			{
 				case PULLPLAN_CAMERA_MODE:
-					if (e->delta() > 0)
+					if (e->angleDelta().y() > 0)
 						rho = MAX(MIN(rho - rho_step, max_rho), min_rho);
-					else if (e->delta() < 0)
+					else if (e->angleDelta().y() < 0)
 					{
 						if (rho + rho_step > 11.0)
 							rho = 11.0;
@@ -273,12 +274,12 @@ bool NiceViewWidget :: event(QEvent* event)
 					break;
 				case GLASSCOLOR_CAMERA_MODE:
 				case PICKUPPLAN_CAMERA_MODE:
-					return true;	
+					return true;
 				case PIECE_CAMERA_MODE:
 				default:
-					if (e->delta() > 0)
+					if (e->angleDelta().y() > 0)
 						rho = MAX(rho - rho_step, min_rho);
-					else if (e->delta() < 0)
+					else if (e->angleDelta().y() < 0)
 						rho = MIN(rho + rho_step, max_rho);
 					break;
 			}
@@ -293,22 +294,22 @@ bool NiceViewWidget :: event(QEvent* event)
 			if (cameraMode == PICKUPPLAN_CAMERA_MODE || cameraMode == GLASSCOLOR_CAMERA_MODE)
 				return true;
 
-			// this code comes largely from the Qt example at 
+			// this code comes largely from the Qt example at
 			// https://qt-project.org/doc/qt-4.8/touch-pinchzoom-graphicsview-cpp.html
 			QTouchEvent* e = dynamic_cast<QTouchEvent*>(event);
-			QList<QTouchEvent::TouchPoint> touchPoints = e->touchPoints();
-			if (touchPoints.count() == 2) 
+			const QList<QEventPoint>& touchPoints = e->points();
+			if (touchPoints.count() == 2)
 			{
 				// determine scale factor
-				QTouchEvent::TouchPoint& tp1 = touchPoints.first();
-				QTouchEvent::TouchPoint& tp2 = touchPoints.last();
-				rho *= QLineF(tp1.lastPos(), tp2.lastPos()).length() / QLineF(tp1.pos(), tp2.pos()).length();
+				const QEventPoint& tp1 = touchPoints.first();
+				const QEventPoint& tp2 = touchPoints.last();
+				rho *= QLineF(tp1.lastPosition(), tp2.lastPosition()).length() / QLineF(tp1.position(), tp2.position()).length();
 				rho = MAX(MIN(rho, max_rho), min_rho);
 			}
 			return true;
 		}
 		default:
-			return QGLWidget::event(event);
+			return QOpenGLWidget::event(event);
 	}
 }
 

@@ -1,4 +1,6 @@
 
+#include <QPainter>
+
 #include "constants.h"
 #include "glasscolor.h"
 #include "canerenderdata.h"
@@ -18,7 +20,7 @@ GlassColorLibraryWidget :: GlassColorLibraryWidget(GlassColor* _glassColor, Main
 		squareCane = new Cane(CaneTemplate::BASE_SQUARE);
 	squareCane->setOutermostCasingColor(_glassColor);
 	updatePixmaps();
-	connect(this->glassColor, SIGNAL(modified()), this, SLOT(updatePixmaps()));
+	connect(this->glassColor, &GlassColor::modified, this, &GlassColorLibraryWidget::updatePixmaps);
 }
 
 void GlassColorLibraryWidget :: paintEvent(QPaintEvent *event)
@@ -50,9 +52,9 @@ void GlassColorLibraryWidget :: updateDragPixmap()
 	_dragPixmap = _pixmap.scaled(100, 100);
 }
 
-const QPixmap* GlassColorLibraryWidget :: dragPixmap()
+QPixmap GlassColorLibraryWidget :: dragPixmap()
 {
-	return &(this->_dragPixmap);
+	return this->_dragPixmap;
 }
 
 bool GlassColorLibraryWidget :: isDraggable()

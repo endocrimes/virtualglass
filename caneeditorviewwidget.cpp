@@ -72,7 +72,7 @@ bool CaneEditorViewWidget :: isOnCasing(int casingIndex, Point2D loc)
 
 void CaneEditorViewWidget :: mousePressEvent(QMouseEvent* event)
 {
-	Point2D mouseLoc = mouseToCaneCoords(event->pos().x(), event->pos().y());
+	Point2D mouseLoc = mouseToCaneCoords(event->position().toPoint().x(), event->position().toPoint().y());
 
 	// Check for casing resize
 	for (unsigned int i = 0; i < cane->casingCount() - 1; ++i) 
@@ -236,7 +236,7 @@ void CaneEditorViewWidget :: mouseMoveEvent(QMouseEvent* event)
 	if (!isDraggingCasing)
 		return;
 
-	Point2D mouseLoc = mouseToCaneCoords(event->pos().x(), event->pos().y());
+	Point2D mouseLoc = mouseToCaneCoords(event->position().toPoint().x(), event->position().toPoint().y());
 	float radius = shapeRadius(cane->casingShape(draggedCasingIndex), mouseLoc);
 
 	float min;
@@ -282,7 +282,7 @@ Point2D CaneEditorViewWidget :: mouseToCaneCoords(float x, float y)
 
 void CaneEditorViewWidget :: updateHighlightedSubcanesAndCasings(QDragMoveEvent* event)
 {
-	Point2D mouseLoc = mouseToCaneCoords(event->pos().x(), event->pos().y());
+	Point2D mouseLoc = mouseToCaneCoords(event->position().toPoint().x(), event->position().toPoint().y());
 
 	subcanesHighlighted.clear();
 	casingsHighlighted.clear();
@@ -306,7 +306,7 @@ void CaneEditorViewWidget :: updateHighlightedSubcanesAndCasings(QDragMoveEvent*
 				// The crazy thing is, on Windows a drag *blocks* the event loop, preventing the whole application from
 				// getting a keyPressEvent() until the drag is completed. So reading keyboardModifiers() actually 
 				// lets you notice that the shift key is down earlier, i.e. during the drag, which is the only time you care anyway.
-				if (event && (event->keyboardModifiers() & Qt::ShiftModifier))
+				if (event && (event->modifiers() & Qt::ShiftModifier))
 				{
 					for (unsigned int i = 0; i < cane->subcaneCount(); ++i)
 						subcanesHighlighted.insert(i);
@@ -319,7 +319,7 @@ void CaneEditorViewWidget :: updateHighlightedSubcanesAndCasings(QDragMoveEvent*
 			int casingIndexUnderMouse = casingIndexAt(mouseLoc);
 			if (casingIndexUnderMouse == -1)
 				break;
-			if (event && (event->keyboardModifiers() & Qt::ShiftModifier))
+			if (event && (event->modifiers() & Qt::ShiftModifier))
 			{
 				for (unsigned int i = 0; i < cane->casingCount(); ++i)
 					casingsHighlighted.insert(i);
@@ -335,7 +335,7 @@ void CaneEditorViewWidget :: updateHighlightedSubcanesAndCasings(QDragMoveEvent*
 			int casingIndexUnderMouse = casingIndexAt(mouseLoc);
 			if (casingIndexUnderMouse == -1)
 				break;
-			if (event && (event->keyboardModifiers() & Qt::ShiftModifier))
+			if (event && (event->modifiers() & Qt::ShiftModifier))
 			{
 				for (unsigned int i = 0; i < cane->casingCount(); ++i)
 					casingsHighlighted.insert(i);
@@ -360,7 +360,7 @@ void CaneEditorViewWidget :: updateHighlightedSubcanesAndCasings(QDragMoveEvent*
 				break;
 			if (draggedCane->outermostCasingShape() != cane->subcaneTemplate(subcaneIndexUnderMouse).shape)
 				break;
-			if (event && (event->keyboardModifiers() & Qt::ShiftModifier))
+			if (event && (event->modifiers() & Qt::ShiftModifier))
 			{
 				for (unsigned int i = 0; i < cane->subcaneCount(); ++i)
 				{

@@ -49,11 +49,11 @@ GlassColor* ColorEditorWidget :: glassColor() const
 	return this->glassColor_;
 }
 
-void ColorEditorWidget :: setGlassColor(GlassColor* color) 
+void ColorEditorWidget :: setGlassColor(GlassColor* color)
 {
-	disconnect(this->glassColor_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	disconnect(this->glassColor_, &GlassColor::modified, this, &ColorEditorWidget::updateEverything);
 	this->glassColor_= color;
-	connect(this->glassColor_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->glassColor_, &GlassColor::modified, this, &ColorEditorWidget::updateEverything);
 	updateEverything();
 }
 
@@ -130,10 +130,10 @@ void ColorEditorWidget :: setupLayout()
 
 void ColorEditorWidget :: setupConnections()
 {
-	connect(collectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(collectionComboBoxChanged(int)));
-	connect(alphaSlider, SIGNAL(valueChanged(int)), this, SLOT(alphaSliderPositionChanged(int)));
-	connect(alphaSlider, SIGNAL(sliderReleased()), this, SLOT(alphaSliderChangeEnded()));
-	connect(this->glassColor_, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(collectionComboBox, &QComboBox::currentIndexChanged, this, &ColorEditorWidget::collectionComboBoxChanged);
+	connect(alphaSlider, &QSlider::valueChanged, this, &ColorEditorWidget::alphaSliderPositionChanged);
+	connect(alphaSlider, &QSlider::sliderReleased, this, &ColorEditorWidget::alphaSliderChangeEnded);
+	connect(this->glassColor_, &GlassColor::modified, this, &ColorEditorWidget::updateEverything);
 }
 
 bool compareGlassColors(GlassColor* c1, GlassColor* c2)

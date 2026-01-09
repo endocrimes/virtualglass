@@ -8,10 +8,10 @@
 #include "globalglass.h"
 #include "cane.h"
 
-#include <tr1/unordered_map>
-#include <tr1/unordered_set>
-using std::tr1::unordered_map;
-using std::tr1::unordered_set;
+#include <unordered_map>
+#include <unordered_set>
+using std::unordered_map;
+using std::unordered_set;
 
 using std::pair;
 using std::make_pair;
@@ -70,13 +70,13 @@ unsigned int Cane :: casingDependencyOccurrances(GlassColor* glassColor)
 void Cane :: addCasingDependency(GlassColor* glassColor)
 {
 	if (casingDependencyOccurrances(glassColor) == 1)
-		connect(glassColor, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		connect(glassColor, &GlassColor::modified, this, &Cane::dependencyModified);
 }
 
 void Cane :: removeCasingDependency(GlassColor* glassColor)
 {
 	if (casingDependencyOccurrances(glassColor) == 0)
-		disconnect(glassColor, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		disconnect(glassColor, &GlassColor::modified, this, &Cane::dependencyModified);
 }
 
 unsigned int Cane :: subcaneDependencyOccurrances(Cane* cane)
@@ -90,13 +90,13 @@ unsigned int Cane :: subcaneDependencyOccurrances(Cane* cane)
 void Cane :: addSubcaneDependency(Cane* cane)
 {
 	if (subcaneDependencyOccurrances(cane) == 1)
-		connect(cane, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		connect(cane, &Cane::modified, this, &Cane::dependencyModified);
 }
 
 void Cane :: removeSubcaneDependency(Cane* cane)
 {
 	if (subcaneDependencyOccurrances(cane) == 0)
-		disconnect(cane, SIGNAL(modified()), this, SLOT(dependencyModified()));
+		disconnect(cane, &Cane::modified, this, &Cane::dependencyModified);
 }
 
 void Cane :: dependencyModified()

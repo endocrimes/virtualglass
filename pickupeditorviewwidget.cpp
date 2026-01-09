@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QMimeData>
 #include <QDrag>
+#include <QPainter>
 
 #include "piece.h"
 #include "pickupeditorviewwidget.h"
@@ -27,7 +28,7 @@ PickupEditorViewWidget :: PickupEditorViewWidget(Piece* piece, QWidget* parent) 
 	layout->addWidget(niceViewWidget, 1);
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything()));
+	connect(this->piece, &Piece::modified, this, &PickupEditorViewWidget::updateEverything);
 }
 
 void PickupEditorViewWidget :: subcaneAt(float x, float y, Cane** subcane, int* subcaneIndex)
@@ -93,8 +94,8 @@ void PickupEditorViewWidget :: subcaneAt(float x, float y, Cane** subcane, int* 
 void PickupEditorViewWidget :: mousePressEvent(QMouseEvent* event)
 {
 	// Check for convenience subcane-to-subcane drag
-	float x = (adjustedX(event->pos().x()) - squareSize/2) / float(squareSize/2-10);
-	float y = (adjustedY(event->pos().y()) - squareSize/2) / float(squareSize/2-10);
+	float x = (adjustedX(event->position().toPoint().x()) - squareSize/2) / float(squareSize/2-10);
+	float y = (adjustedY(event->position().toPoint().y()) - squareSize/2) / float(squareSize/2-10);
 
 	int subcaneIndex;
 	Cane* subcane;
@@ -191,8 +192,8 @@ void PickupEditorViewWidget :: dropEvent(QDropEvent* event)
 	}
 
 	// otherwise it's a pull cane, and we do some complicated things now
-	float x = (adjustedX(event->pos().x()) - squareSize/2) / float(squareSize/2-10);
-	float y = (adjustedY(event->pos().y()) - squareSize/2) / float(squareSize/2-10);
+	float x = (adjustedX(event->position().toPoint().x()) - squareSize/2) / float(squareSize/2-10);
+	float y = (adjustedY(event->position().toPoint().y()) - squareSize/2) / float(squareSize/2-10);
 
 	int subcaneIndex;
 	Cane* subcane;	
@@ -201,7 +202,7 @@ void PickupEditorViewWidget :: dropEvent(QDropEvent* event)
 	if (subcane != NULL)
 	{
 		event->accept();
-		if ((event->keyboardModifiers() & Qt::ShiftModifier))
+		if ((event->modifiers() & Qt::ShiftModifier))
 		{
 			for (unsigned int i = 0; i < this->piece->subpickupCount(); ++i)
 			{
@@ -226,9 +227,9 @@ void PickupEditorViewWidget :: dropEvent(QDropEvent* event)
 
 void PickupEditorViewWidget :: setPiece(Piece* _piece)
 {
-	disconnect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything())); 
+	disconnect(this->piece, &Piece::modified, this, &PickupEditorViewWidget::updateEverything);
 	this->piece = _piece;
-	connect(this->piece, SIGNAL(modified()), this, SLOT(updateEverything())); 
+	connect(this->piece, &Piece::modified, this, &PickupEditorViewWidget::updateEverything);
 	updateEverything();
 }
 

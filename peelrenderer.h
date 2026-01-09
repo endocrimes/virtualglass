@@ -2,8 +2,8 @@
 #define PEELRENDERER_HPP
 
 #include "glew.h"
-#include <QGLContext>
 
+class QOpenGLContext;
 class Geometry;
 
 //Make sure you call all functions of PeelRenderer (including the constructor and destructor) while the same OpenGL context is current.
@@ -16,7 +16,7 @@ class PeelRenderer
 
 		GLEWContext *glewContext;
 
-		const QGLContext *expectedGLContext; //to keep you honest.
+		QOpenGLContext *expectedGLContext; //to keep you honest.
 		Vector2ui bufferSize;
 		GLuint buffer; //framebuffer
 		GLuint colorTex; //color texture, stores current layer

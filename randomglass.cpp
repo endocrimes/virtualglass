@@ -12,14 +12,12 @@
 #include "randomglass.h"
 #include "glassfileio.h"
 #include "globalglass.h"
+#include "randomutil.h"
 
 void randomInit()
 {
 	quint64 now = QDateTime::currentDateTime().toMSecsSinceEpoch();
-	// Convert qint64 to uint for qsrand.
-	if(sizeof(uint) > sizeof(quint64))
-		now &= (Q_UINT64_C(1) << 8*sizeof(uint)) - 1;
-	qsrand(now);
+	vg_srand(now);
 }
 
 GlassColor* randomGlassColor()
@@ -30,7 +28,7 @@ GlassColor* randomGlassColor()
 	if(!readColorFile(":/vgc/reichenbach-opaque-colors.vgc", collectionName, colors))
 		return GlobalGlass::color();
 	
-	unsigned int choice = qrand() % colors.size();
+	unsigned int choice = vg_rand() % colors.size();
 	for (unsigned int i = 0; i < colors.size(); ++i)
 	{
 		if (i != choice)
@@ -43,14 +41,14 @@ GlassColor* randomGlassColor()
 Cane* randomSimpleCane(enum GeometricShape outermostCasingShape, GlassColor* color)
 {
 	Cane* cane;
-	if (qrand() % 2)
+	if (vg_rand() % 2)
 		cane = new Cane(CaneTemplate::BASE_CIRCLE);
 	else
 		cane = new Cane(CaneTemplate::BASE_SQUARE);
 
 	cane->addCasing(outermostCasingShape);
 	cane->setCasingColor(color, 0);
-	cane->setCasingThickness((qrand() % 25) * 0.01 + 0.25, 0);
+	cane->setCasingThickness((vg_rand() % 25) * 0.01 + 0.25, 0);
 
 	return cane;
 }
@@ -60,14 +58,14 @@ Cane* randomComplexCane(Cane* circleSimpleCane, Cane* squareSimpleCane)
 	// set template
 	// select a random template that is `complex', and is dependent upon the templates available
 	// at revision 785 these are the templates between HORIZONTAL_LINE_CIRCLE and SURROUNDING_SQUARE
-	int randomTemplateNumber = qrand() % (CaneTemplate::SURROUNDING_SQUARE - CaneTemplate::HORIZONTAL_LINE_CIRCLE) 
+	int randomTemplateNumber = vg_rand() % (CaneTemplate::SURROUNDING_SQUARE - CaneTemplate::HORIZONTAL_LINE_CIRCLE) 
 		+ CaneTemplate::HORIZONTAL_LINE_CIRCLE;
 	Cane* cane = new Cane(static_cast<CaneTemplate::Type>(randomTemplateNumber));
 	
 	// set parameters
 	if (cane->outermostCasingShape() == CIRCLE_SHAPE)
-		cane->setTwist((qrand() % 20 + 10) * 0.1);
-	cane->setCount(qrand() % 10 + 2);
+		cane->setTwist((vg_rand() % 20 + 10) * 0.1);
+	cane->setCount(vg_rand() % 10 + 2);
 
 	// set subcanes
 	for (unsigned int i = 0; i < cane->subcaneCount(); ++i)
@@ -90,9 +88,9 @@ Cane* randomComplexCane(Cane* circleSimpleCane, Cane* squareSimpleCane)
 
 Piece* randomPiece(Cane* cane1, Cane* cane2)
 {
-	int randomPickupTemplateNumber = qrand() % (PickupTemplate::lastSeedTemplate() - PickupTemplate::firstSeedTemplate())
+	int randomPickupTemplateNumber = vg_rand() % (PickupTemplate::lastSeedTemplate() - PickupTemplate::firstSeedTemplate())
 		+ PickupTemplate::firstSeedTemplate();
-	int randomPieceTemplateNumber = qrand() % (PieceTemplate::lastSeedTemplate() - PieceTemplate::firstSeedTemplate())
+	int randomPieceTemplateNumber = vg_rand() % (PieceTemplate::lastSeedTemplate() - PieceTemplate::firstSeedTemplate())
 		+ PieceTemplate::firstSeedTemplate();
 	Piece* piece = new Piece(static_cast<PieceTemplate::Type>(randomPieceTemplateNumber), static_cast<PickupTemplate::Type>(randomPickupTemplateNumber));
 
@@ -102,7 +100,7 @@ Piece* randomPiece(Cane* cane1, Cane* cane2)
 	{
 		piece->pickupParameter(i, &p);
 		// not setting to upper intervals of parameter values for efficiency reasons 
-		piece->setPickupParameter(i, qrand() % ((p.upperLimit - p.lowerLimit)/3) + p.lowerLimit);
+		piece->setPickupParameter(i, vg_rand() % ((p.upperLimit - p.lowerLimit)/3) + p.lowerLimit);
 	}	
 
 	// set subcanes
