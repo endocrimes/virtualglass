@@ -3,3 +3,7 @@ VirtualGlass.dmg
 .qmark.stash
 Makefile
 .qmake.stash
+*.o
+moc_*
+qrc_virtualglass.cpp
+version.txt
